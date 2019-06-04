@@ -1,6 +1,6 @@
 #define CL_HPP_TARGET_OPENCL_VERSION 120
 #define __CL_ENABLE_EXCEPTIONS
-#define CL_USE_DEPRECATED_OPENCL_1_0_APIS
+//#define CL_USE_DEPRECATED_OPENCL_1_0_APIS
 #include <CL/cl.h>
 #include "cl.hpp"
 
@@ -22,6 +22,20 @@ int main()
    size_t N, M;
    fin >> N >> M;
 
+    size_t const block_size = 16;
+
+    int mat1_size = N;
+    while (mat1_size % block_size) {
+        mat1_size++;
+    }
+
+    std::cerr << mat1_size << "\n";
+
+    int mat2_size = M;
+    while (mat2_size % block_size) {
+        mat2_size++;
+    }
+
    std::vector<double> a(N * N);
    std::vector<double> b(M * M);
    std::vector<double> c(N * N);
@@ -42,7 +56,7 @@ int main()
       // create platform
       cl::Platform::get(&platforms);
 
-      platforms[0].getDevices(CL_DEVICE_TYPE_CPU, &devices);
+      platforms[0].getDevices(CL_DEVICE_TYPE_GPU, &devices);
 
       // create context
       cl::Context context(devices);
@@ -75,7 +89,7 @@ int main()
       }
 
       // create a message to send to kernel
-      size_t const block_size = 16;
+
       size_t const base_matrix_size = N * N;
       size_t const kernel_matrix_size = M * M;
 
@@ -91,7 +105,7 @@ int main()
       // load named kernel from opencl source
       cl::Kernel kernel_gmem(program, "convolve");
 
-      cl::KernelFunctor convolve(kernel_gmem, queue, cl::NullRange, cl::NDRange(N, N), cl::NDRange(block_size, block_size));
+      cl::KernelFunctor convolve(kernel_gmem, queue, cl::NullRange, cl::NDRange(mat1_size, mat1_size), cl::NDRange(block_size, block_size));
 
       cl::Event event = convolve(dev_a, dev_b, dev_c, static_cast<int>(M), static_cast<int>(N));
 

@@ -15,9 +15,9 @@ target_link_libraries (matrix_convolution ${OpenCL_LIBRARY})
 FILE(GLOB CL_FILES *.cl)
 foreach(cl_file ${CL_FILES})
     add_custom_command(
-    TARGET matrix_convolution
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy ${cl_file} ${PROJECT_BINARY_DIR}/.
-)
+            TARGET matrix_convolution
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND}
+            ARGS -E copy ${cl_file} ${PROJECT_BINARY_DIR}/.
+    )
 endforeach(cl_file)
